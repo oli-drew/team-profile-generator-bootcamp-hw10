@@ -8,6 +8,9 @@ const Manager = require("./lib/Manager");
 const Intern = require("./lib/Intern");
 const Engineer = require("./lib/Engineer");
 
+// Array to store the team
+const team = [];
+
 // Exit application
 const exitGenerator = (message) => {
   console.log(
@@ -67,38 +70,38 @@ const applicationIntro = () => {
 applicationIntro();
 
 // Collect answers asynchronously
-const collectInfo = async (userInputs = []) => {
+const managerInfo = async (userInputs = []) => {
   // Array of questions to ask
   const questions = [
     {
       type: "input",
-      name: "userName",
-      message: "Hi Boss, what is your name?",
+      name: "managerName",
+      message: "Hi, what is the team manager's name?",
       validate: validateResponse,
     },
     {
       type: "input",
-      name: "ID",
-      message: "What is your employee ID?",
+      name: "managerID",
+      message: "What is the employee ID of the manager?",
       validate: validateResponse,
     },
     {
       type: "input",
-      name: "email",
-      message: "What is your email address?",
+      name: "managerEmail",
+      message: "What is the manager's email address?",
       validate: validateEmail,
     },
     {
       type: "input",
-      name: "officeNumber",
-      message: "What is your office number?",
+      name: "managerOfficeNumber",
+      message: "What is the manager's office number?",
       validate: validateResponse,
     },
     {
       type: "list",
       name: "nextOption",
-      message: "?",
-      choices: ["Engineer", "Intern", "Finish building team"],
+      message: "What would you like to do next?",
+      choices: ["Add Employee", "Finish building team"],
     },
   ];
 
@@ -108,9 +111,21 @@ const collectInfo = async (userInputs = []) => {
   return again ? collectInputs(newInputs) : newInputs;
 };
 
-// Run the collectAnswers function and write to file
+// Collect manager info
 async function init() {
-  const inputs = await collectInfo();
+  const inputs = await managerInfo();
+  const managerProfile = new Manager(
+    inputs[0].managerName,
+    inputs[0].managerID,
+    inputs[0].managerEmail,
+    inputs[0].managerOfficeNumber
+  );
+  team.push(managerProfile);
+  if (inputs[0].nextOption === "Add Employee") {
+    addEmployee();
+  } else {
+    generateHTML();
+  }
 }
 
 // Validate Response
@@ -128,4 +143,88 @@ const validateEmail = (response) => {
   } else {
     return chalk.red("That's not a valid email address");
   }
+};
+
+//
+const addEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "profileType",
+        message:
+          "Select the type of employee you would like to add from the list:",
+        choices: ["Add an Engineer", "Add an Intern"],
+      },
+      {
+        type: "input",
+        name: "name",
+        message: "What is your employees name?",
+        validate: validateResponse,
+      },
+      {
+        type: "input",
+        name: "id",
+        message: "Please enter your employees ID",
+        validate: validateResponse,
+      },
+      {
+        type: "input",
+        name: "email",
+        message: "Please enter your employees email address",
+        validate: validateEmail,
+      },
+      {
+        type: "input",
+        name: "github",
+        message: "Please enter your Engineer's GitHub username",
+        when: (answers) => answers.profileType === "Add an Engineer",
+        validate: validateResponse,
+      },
+      {
+        type: "input",
+        name: "school",
+        message: "Please enter the school name your Intern attended",
+        when: (answers) => answers.profileType === "Add an Intern",
+        validate: validateResponse,
+      },
+      {
+        type: "confirm",
+        name: "addEmployee",
+        message: "Would you like to add another employee to your team?",
+      },
+    ])
+
+    //
+    .then((answers) => {
+      if (answers.profileType === "Add an Engineer") {
+        const engineerProfile = new Engineer(
+          answers.name,
+          answers.id,
+          answers.email,
+          answers.github
+        );
+        team.push(engineerProfile);
+      } else if (answers.profileType === "Add an Intern") {
+        const internProfile = new Intern(
+          answers.name,
+          answers.id,
+          answers.email,
+          answers.school
+        );
+        team.push(internProfile);
+      }
+
+      if (answers.addEmployee === true) {
+        addEmployee();
+      } else {
+        // Make the html profile
+        console.log(chalk.green.bold("HTML Profile Generated!"));
+        generateHTML();
+      }
+    });
+};
+
+const generateHTML = function () {
+  console.log(`Team Array: ${team}`);
 };
