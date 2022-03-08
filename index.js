@@ -145,85 +145,98 @@ const validateEmail = (response) => {
   }
 };
 
-//
-const addEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "profileType",
-        message:
-          "Select the type of employee you would like to add from the list:",
-        choices: ["Add an Engineer", "Add an Intern"],
-      },
-      {
-        type: "input",
-        name: "name",
-        message: "What is your employees name?",
-        validate: validateResponse,
-      },
-      {
-        type: "input",
-        name: "id",
-        message: "Please enter your employees ID",
-        validate: validateResponse,
-      },
-      {
-        type: "input",
-        name: "email",
-        message: "Please enter your employees email address",
-        validate: validateEmail,
-      },
-      {
-        type: "input",
-        name: "github",
-        message: "Please enter your Engineer's GitHub username",
-        when: (answers) => answers.profileType === "Add an Engineer",
-        validate: validateResponse,
-      },
-      {
-        type: "input",
-        name: "school",
-        message: "Please enter the school name your Intern attended",
-        when: (answers) => answers.profileType === "Add an Intern",
-        validate: validateResponse,
-      },
-      {
-        type: "confirm",
-        name: "addEmployee",
-        message: "Would you like to add another employee to your team?",
-      },
-    ])
+// Collect information on other employees
+const employeeInfo = async (userInputs = []) => {
+  // Array of questions to ask
+  const questions = [
+    {
+      type: "list",
+      name: "profileType",
+      message:
+        "Select the type of employee you would like to add from the list:",
+      choices: ["Add an Engineer", "Add an Intern"],
+    },
+    {
+      type: "input",
+      name: "name",
+      message: "What is your employees name?",
+      validate: validateResponse,
+    },
+    {
+      type: "input",
+      name: "id",
+      message: "Please enter your employees ID",
+      validate: validateResponse,
+    },
+    {
+      type: "input",
+      name: "email",
+      message: "Please enter your employees email address",
+      validate: validateEmail,
+    },
+    {
+      type: "input",
+      name: "github",
+      message: "Please enter your Engineer's GitHub username",
+      when: (answers) => answers.profileType === "Add an Engineer",
+      validate: validateResponse,
+    },
+    {
+      type: "input",
+      name: "school",
+      message: "Please enter the school name your Intern attended",
+      when: (answers) => answers.profileType === "Add an Intern",
+      validate: validateResponse,
+    },
+    {
+      type: "list",
+      name: "addEmployee",
+      message: "Would you like to add another employee to your team?",
+      choices: ["Yes", "Nope"],
+    },
+  ];
 
-    //
-    .then((answers) => {
-      if (answers.profileType === "Add an Engineer") {
-        const engineerProfile = new Engineer(
-          answers.name,
-          answers.id,
-          answers.email,
-          answers.github
-        );
-        team.push(engineerProfile);
-      } else if (answers.profileType === "Add an Intern") {
-        const internProfile = new Intern(
-          answers.name,
-          answers.id,
-          answers.email,
-          answers.school
-        );
-        team.push(internProfile);
-      }
-
-      if (answers.addEmployee === true) {
-        addEmployee();
-      } else {
-        // Make the html profile
-        console.log(chalk.green.bold("HTML Profile Generated!"));
-        generateHTML();
-      }
-    });
+  // Collect answers in the newInputs array
+  const { again, ...answers } = await inquirer.prompt(questions);
+  const newInputs = [...userInputs, answers];
+  return again ? collectInputs(newInputs) : newInputs;
 };
+
+// Collect other employee info
+async function addEmployee() {
+  let inputs = await employeeInfo();
+  inputs = inputs[0];
+  // Add the Engineer
+  if (inputs.profileType === "Add an Engineer") {
+    console.log("Engineer added");
+    const engineerProfile = new Engineer(
+      inputs.name,
+      inputs.id,
+      inputs.email,
+      inputs.github
+    );
+    team.push(engineerProfile);
+    // Add the intern
+  } else if (inputs.profileType === "Add an Intern") {
+    console.log("Intern added");
+    const internProfile = new Intern(
+      inputs.name,
+      inputs.id,
+      inputs.email,
+      inputs.school
+    );
+    team.push(internProfile);
+  }
+
+  if (inputs.addEmployee === "Yes") {
+    console.log("add another employee");
+    addEmployee();
+  } else {
+    // Make the html profile
+    console.log(chalk.green.bold("HTML Profile Generated!"));
+    generateHTML();
+  }
+}
 
 const generateHTML = function () {
   console.log(`Team Array: ${team}`);
