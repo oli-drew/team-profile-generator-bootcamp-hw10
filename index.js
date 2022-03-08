@@ -37,7 +37,7 @@ const startGenerator = () => {
       if (answer === "Yes, Please!") {
         console.log(chalk.green.bold("Okay, let's do this!", "\n"));
         // Start asking questions
-        collectInfo();
+        init();
       } else {
         exitGenerator("Bye Bye!");
       }
@@ -66,6 +66,66 @@ const applicationIntro = () => {
 
 applicationIntro();
 
-const collectInfo = function () {
-  console.log("Ask questions");
+// Collect answers asynchronously
+const collectInfo = async (userInputs = []) => {
+  // Array of questions to ask
+  const questions = [
+    {
+      type: "input",
+      name: "userName",
+      message: "Hi Boss, what is your name?",
+      validate: validateResponse,
+    },
+    {
+      type: "input",
+      name: "ID",
+      message: "What is your employee ID?",
+      validate: validateResponse,
+    },
+    {
+      type: "input",
+      name: "email",
+      message: "What is your email address?",
+      validate: validateEmail,
+    },
+    {
+      type: "input",
+      name: "officeNumber",
+      message: "What is your office number?",
+      validate: validateResponse,
+    },
+    {
+      type: "list",
+      name: "nextOption",
+      message: "?",
+      choices: ["Engineer", "Intern", "Finish building team"],
+    },
+  ];
+
+  // Collect answers in the newInputs array
+  const { again, ...answers } = await inquirer.prompt(questions);
+  const newInputs = [...userInputs, answers];
+  return again ? collectInputs(newInputs) : newInputs;
+};
+
+// Run the collectAnswers function and write to file
+async function init() {
+  const inputs = await collectInfo();
+}
+
+// Validate Response
+const validateResponse = (response) => {
+  if (!response) {
+    return chalk.red("You have to type something!");
+  }
+  return true;
+};
+
+// Validate email address
+const validateEmail = (response) => {
+  if (emailValidator.validate(response)) {
+    return true;
+  } else {
+    return chalk.red("That's not a valid email address");
+  }
 };
