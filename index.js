@@ -124,6 +124,7 @@ async function init() {
     inputs[0].officeNumber
   );
   team.push(managerProfile);
+  console.log(chalk.green.bold("Manager added successfully"));
   if (inputs[0].nextOption === "Add Employee") {
     addEmployee();
   } else {
@@ -211,7 +212,7 @@ async function addEmployee() {
   inputs = inputs[0];
   // Add the Engineer
   if (inputs.profileType === "Add an Engineer") {
-    console.log("Engineer added successfully");
+    console.log(chalk.green.bold("Engineer added successfully"));
     const engineerProfile = new Engineer(
       inputs.name,
       inputs.id,
@@ -221,7 +222,7 @@ async function addEmployee() {
     team.push(engineerProfile);
     // Add the intern
   } else if (inputs.profileType === "Add an Intern") {
-    console.log("Intern added successfully");
+    console.log(chalk.green.bold("Intern added successfully"));
     const internProfile = new Intern(
       inputs.name,
       inputs.id,
@@ -232,7 +233,6 @@ async function addEmployee() {
   }
 
   if (inputs.addEmployee === "Yes") {
-    console.log("add another employee");
     addEmployee();
   } else {
     // Make the html profile
