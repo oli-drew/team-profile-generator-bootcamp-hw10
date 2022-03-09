@@ -1,12 +1,15 @@
+// Bring in required modules
 const inquirer = require("inquirer");
 const fs = require("fs");
 const chalk = require("chalk");
 const figlet = require("figlet");
 const emailValidator = require("email-validator");
 
+// Bring in required files
 const Manager = require("./lib/Manager");
 const Intern = require("./lib/Intern");
 const Engineer = require("./lib/Engineer");
+const generate = require("./src/generateHTML");
 
 // Array to store the team
 const team = [];
@@ -69,7 +72,7 @@ const applicationIntro = () => {
 
 applicationIntro();
 
-// Collect answers asynchronously
+// Collect manager answers asynchronously
 const managerInfo = async (userInputs = []) => {
   // Array of questions to ask
   const questions = [
@@ -159,19 +162,19 @@ const employeeInfo = async (userInputs = []) => {
     {
       type: "input",
       name: "name",
-      message: "What is your employees name?",
+      message: "What is your employee's name?",
       validate: validateResponse,
     },
     {
       type: "input",
       name: "id",
-      message: "Please enter your employees ID",
+      message: "Please enter your employee's ID",
       validate: validateResponse,
     },
     {
       type: "input",
       name: "email",
-      message: "Please enter your employees email address",
+      message: "Please enter your employee's email address",
       validate: validateEmail,
     },
     {
@@ -184,7 +187,7 @@ const employeeInfo = async (userInputs = []) => {
     {
       type: "input",
       name: "school",
-      message: "Please enter the school name your Intern attended",
+      message: "Please enter the name of the school your Intern attended",
       when: (answers) => answers.profileType === "Add an Intern",
       validate: validateResponse,
     },
@@ -208,7 +211,7 @@ async function addEmployee() {
   inputs = inputs[0];
   // Add the Engineer
   if (inputs.profileType === "Add an Engineer") {
-    console.log("Engineer added");
+    console.log("Engineer added successfully");
     const engineerProfile = new Engineer(
       inputs.name,
       inputs.id,
@@ -218,7 +221,7 @@ async function addEmployee() {
     team.push(engineerProfile);
     // Add the intern
   } else if (inputs.profileType === "Add an Intern") {
-    console.log("Intern added");
+    console.log("Intern added successfully");
     const internProfile = new Intern(
       inputs.name,
       inputs.id,
@@ -233,113 +236,15 @@ async function addEmployee() {
     addEmployee();
   } else {
     // Make the html profile
-    console.log(chalk.green.bold("HTML Profile Generated!"));
     generateTeam();
   }
 }
 
+// Create the team and write to file
 const generateTeam = function () {
-  console.log(chalk.green.bold("Your team has been generated!"));
+  console.log(chalk.green.bold("Your team has been generated!", "\n"));
   fs.writeFileSync("./dist/sample.html", generateHTML(), "utf-8");
-};
-
-// Manager card
-const createManager = (manager) => {
-  return `
-    <div class="col">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="card-title">${manager.name}</h5>
-          <h6 class="mb-0">
-            <span class="material-icons align-middle"> groups </span>
-            <span>Manager</span>
-          </h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">ID: <span>${manager.id}</span></li>
-            <li class="list-group-item">
-              Email:
-              <a href="mailto:${manager.email}"
-                >${manager.email}</a
-              >
-            </li>
-            <li class="list-group-item">Office Number: <span>${manager.officeNumber}</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>`;
-};
-
-// Engineer card
-const createEngineer = (engineer) => {
-  return `
-    <div class="col">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="card-title">${engineer.name}</h5>
-          <h6 class="mb-0">
-            <span class="material-icons align-middle"> engineering </span>
-            <span>Engineer</span>
-          </h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">ID: <span>${engineer.id}</span></li>
-            <li class="list-group-item">
-              Email:
-              <a href="mailto:${engineer.email}"
-                >${engineer.email}</a
-              >
-            </li>
-            <li class="list-group-item">GitHub Profile: <a href="https://www.github.com/${engineer.github}" target="_blank"> ${engineer.github}</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>`;
-};
-
-// Intern card
-const createIntern = (intern) => {
-  return `
-    <div class="col">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="card-title">${intern.name}</h5>
-          <h6 class="mb-0">
-            <span class="material-icons align-middle"> school </span>
-            <span>Intern</span>
-          </h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">ID: <span>${intern.id}</span></li>
-            <li class="list-group-item">
-              Email:
-              <a href="mailto:${intern.email}"
-                >${intern.email}</a
-              >
-            </li>
-            <li class="list-group-item">School: <span>${intern.school}</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>`;
-};
-
-// Generate cards HTML
-const buildTeam = (team) => {
-  let htmlCards = "";
-  team
-    .filter((employee) => employee.getRole() === "Manager")
-    .map((manager) => (htmlCards += createManager(manager)));
-  team
-    .filter((engineer) => engineer.getRole() === "Engineer")
-    .map((engineer) => (htmlCards += createEngineer(engineer)));
-  team
-    .filter((intern) => intern.getRole() === "Intern")
-    .map((intern) => (htmlCards += createIntern(intern)));
-  return htmlCards;
+  exitGenerator("See you soon!");
 };
 
 // Generate HTML
@@ -376,7 +281,7 @@ const generateHTML = () => {
     <main class="container pb-4">
       <div class="row row-cols-1 row-cols-md-2 g-4">
         <!-- Cards here -->
-        ${buildTeam(team)}
+        ${generate.generateCards(team)}
       </div>
     </main>
   </body>
