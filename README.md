@@ -31,9 +31,9 @@ An application that creates a html webpage of a software development team's stru
 To start the application please run `node index.js`
 
 - Enter the team managers information
-- At this point you can either create the team or add an Engineer or Intern to the team
-- If you choose to add another team member, you will be prompted for their information
-- After each team member you will be asked if you want to finalise the team or add another.
+- At this point you can either create the team or add an Engineer or Intern to the team.
+- If you choose to add another team member, you will be prompted for their information.
+- After each team member you will be asked if you want to finalise the team or add another member.
 - When you chose to create the team, the application creates the html file and finishes.
 
 The HTML file created uses Bootstrap 5 to display the employee cards.
@@ -43,7 +43,7 @@ The HTML file created uses Bootstrap 5 to display the employee cards.
 
 A video walkthrough of how to use this application is available here: https://drive.google.com/file/d/12Pv3ruq4Ej5le7NndxiH7AxPtDkzgzfP/view?usp=sharing
 
-### Sample profile created the application
+### Sample profile created by the application
 
 ![Sample webpage created by the application](dist/images/exampleProfile.png)
 
